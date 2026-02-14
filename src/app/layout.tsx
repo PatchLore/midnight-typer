@@ -28,7 +28,44 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+          {children}
+          
+          {/* Footer */}
+          <footer className="border-t border-gray-800 bg-black/50 backdrop-blur-sm mt-16">
+            <div className="container mx-auto px-4 py-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-4">Cosmos Cartography</h3>
+                  <p className="text-gray-400 text-sm">
+                    A symbolic star registry connecting typing achievements with real-world tree planting.
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Legal</h4>
+                  <ul className="space-y-2 text-sm text-gray-400">
+                    <li><a href="/terms" className="hover:text-white transition-colors">Terms of Service</a></li>
+                    <li><a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Important Notice</h4>
+                  <p className="text-xs text-gray-500 italic">
+                    This is a symbolic registry only. Stars claimed through this service are not officially 
+                    recognized by the International Astronomical Union (IAU) and do not confer any legal 
+                    ownership or astronomical rights to actual celestial bodies.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>&copy; {new Date().getFullYear()} Cosmos Cartography. All rights reserved.</p>
+              </div>
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );

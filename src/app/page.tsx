@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -12,41 +13,42 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          Midnight Typer
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300 text-center sm:text-left">
+          Type to create stars in your personal cosmos. Your typing sessions generate unique celestial bodies based on your performance metrics.
+        </p>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/typing"
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white gap-2 hover:from-blue-600 hover:to-purple-600 text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Start Typing
+          </Link>
+          <Link
+            href="/galaxy"
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-gradient-to-r from-green-500 to-blue-500 text-white gap-2 hover:from-green-600 hover:to-blue-600 text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
           >
-            Read our docs
-          </a>
+            My Galaxy
+          </Link>
+          <Link
+            href="/cosmos-test"
+            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+          >
+            Test Cosmos
+          </Link>
+        </div>
+
+        <div className="mt-8 text-sm text-gray-500 text-center">
+          <p>Features:</p>
+          <ul className="list-disc list-inside mt-2 text-left inline-block">
+            <li>Real-time WPM and accuracy tracking</li>
+            <li>Star generation based on typing performance</li>
+            <li>Interactive starfield visualization</li>
+            <li>Session-based star collection</li>
+          </ul>
         </div>
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
