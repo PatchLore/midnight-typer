@@ -128,6 +128,28 @@ export default function TypingPage() {
     setCurrentWordIndex(words.length);
   }, [input]);
 
+  // Get window dimensions safely
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+      
+      const handleResize = () => {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight
+        });
+      };
+      
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
   const metrics = calculateMetrics();
   const progress = Math.min((currentWordIndex / targetWordCount) * 100, 100);
 
@@ -146,7 +168,7 @@ export default function TypingPage() {
           constellationPoints: [],
           radius: 5,
           sessionSnapshot: { id: '', wpm: 0, accuracy: 0, durationMinutes: 0, wordCount: 0, timestamp: 0 }
-        }} width={window.innerWidth} height={window.innerHeight} />
+        }} width={windowSize.width || 1920} height={windowSize.height || 1080} />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">

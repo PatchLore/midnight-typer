@@ -1,10 +1,23 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Lazy initialization - client created only when first called
+let supabaseClient: SupabaseClient | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const getSupabase = () => {
+  if (!supabaseClient) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!url || !key) {
+      throw new Error(`Missing Supabase env vars. URL: ${url ? 'set' : 'missing'}, Key: ${key ? 'set' : 'missing'}`);
+    }
+    
+    supabaseClient = createClient(url, key);
+  }
+  return supabaseClient;
+};
 
+// Export interfaces (unchanged)
 export interface ImpactCounter {
   id: number;
   total_stars_claimed: number;
@@ -50,8 +63,9 @@ export interface UserGalaxy {
   total_words_typed: number;
 }
 
+// Update all functions to use getSupabase()
 export const getImpactCounter = async (): Promise<ImpactCounter | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('impact_counter')
     .select('*')
     .order('id', { ascending: false })
@@ -66,6 +80,7 @@ export const getImpactCounter = async (): Promise<ImpactCounter | null> => {
 };
 
 export const incrementStarsClaimed = async (): Promise<ImpactCounter | null> => {
+  const supabase = getSupabase();
   const { data: currentCounter, error: fetchError } = await supabase
     .from('impact_counter')
     .select('*')
@@ -97,7 +112,6 @@ export const incrementStarsClaimed = async (): Promise<ImpactCounter | null> => 
 
     return data?.[0] || null;
   } else {
-    // Create initial record
     const { data, error } = await supabase
       .from('impact_counter')
       .insert({ 
@@ -117,6 +131,7 @@ export const incrementStarsClaimed = async (): Promise<ImpactCounter | null> => 
 };
 
 export const incrementTreesPlanted = async (): Promise<ImpactCounter | null> => {
+  const supabase = getSupabase();
   const { data: currentCounter, error: fetchError } = await supabase
     .from('impact_counter')
     .select('*')
@@ -153,9 +168,8 @@ export const incrementTreesPlanted = async (): Promise<ImpactCounter | null> => 
   return null;
 };
 
-// Stars table operations
 export const saveStar = async (starData: StarData, userId: string): Promise<StarRecord | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('stars')
     .insert({
       user_id: userId,
@@ -175,7 +189,7 @@ export const saveStar = async (starData: StarData, userId: string): Promise<Star
 };
 
 export const getUserStars = async (userId: string): Promise<StarRecord[]> => {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('stars')
     .select('*')
     .eq('user_id', userId)
@@ -190,7 +204,7 @@ export const getUserStars = async (userId: string): Promise<StarRecord[]> => {
 };
 
 export const updateStarStatus = async (starId: string, status: 'claimed' | 'gifted', stripeSessionId?: string): Promise<StarRecord | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('stars')
     .update({
       status,
@@ -209,9 +223,8 @@ export const updateStarStatus = async (starId: string, status: 'claimed' | 'gift
   return data;
 };
 
-// User galaxy operations
 export const getUserGalaxy = async (userId: string): Promise<UserGalaxy | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('user_galaxy')
     .select('*')
     .eq('user_id', userId)
@@ -226,7 +239,7 @@ export const getUserGalaxy = async (userId: string): Promise<UserGalaxy | null> 
 };
 
 export const createUserGalaxy = async (userId: string): Promise<UserGalaxy | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('user_galaxy')
     .insert({
       user_id: userId,
@@ -249,6 +262,7 @@ export const updateUserGalaxy = async (
   userId: string, 
   updates: Partial<Pick<UserGalaxy, 'total_words_typed' | 'slots_used'>>
 ): Promise<UserGalaxy | null> => {
+  const supabase = getSupabase();
   const currentGalaxy = await getUserGalaxy(userId);
   
   if (!currentGalaxy) {
