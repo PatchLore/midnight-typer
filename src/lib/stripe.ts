@@ -1,12 +1,17 @@
 import Stripe from 'stripe';
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+export const getStripe = () => {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  
+  if (!stripeSecretKey) {
+    throw new Error('Missing STRIPE_SECRET_KEY');
+  }
+  
+  return new Stripe(stripeSecretKey, {
+    apiVersion: '2026-01-28.clover',
+    typescript: true,
+  });
+};
 
-if (!stripeSecretKey) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is required');
-}
-
-export const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2026-01-28.clover',
-  typescript: true,
-});
+// For backward compatibility, export a getter function
+export const stripe = getStripe();
