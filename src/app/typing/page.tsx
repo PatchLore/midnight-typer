@@ -1,9 +1,44 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { generateStarFromSession, StarData } from '../cosmos/star-generator';
 import { StarRevealModal } from '../components/StarRevealModal';
 import { StarField } from '../cosmos/StarField';
 import { saveStar, updateUserGalaxy } from '../../lib/supabase';
+import { Howl } from 'howler';
+
+// Audio manager outside component to persist
+const audioManager = {
+  sounds: {} as Record<string, Howl>,
+  enabled: false,
+  initialized: false,
+  
+  init() {
+    if (this.initialized) return;
+    
+    // Load sounds from config.json if it exists, else defaults
+    this.sounds['default'] = new Howl({ src: ['/sounds/key-press.ogg'], volume: 0.3 });
+    this.sounds['space'] = new Howl({ src: ['/sounds/key-press.ogg'], volume: 0.25 });
+    this.sounds['enter'] = new Howl({ src: ['/sounds/key-press.ogg'], volume: 0.35 });
+    
+    this.initialized = true;
+  },
+  
+  play(key: string) {
+    if (!this.enabled || !this.initialized) return;
+    
+    const sound = this.sounds[key] || this.sounds['default'];
+    sound?.play();
+  },
+  
+  enable() {
+    this.init();
+    this.enabled = true;
+    // Unlock audio context
+    if (Howler.ctx && Howler.ctx.state === 'suspended') {
+      Howler.ctx.resume();
+    }
+  }
+};
 
 interface TypingSession {
   id: string;
@@ -27,7 +62,13 @@ export default function TypingPage() {
   const [generatedStar, setGeneratedStar] = useState<StarData | null>(null);
   const [targetWordCount] = useState(10);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
   
+  const unlockAudio = useCallback(() => {
+    audioManager.enable();
+    setAudioUnlocked(true);
+  }, []);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -110,6 +151,13 @@ export default function TypingPage() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape' && isActive && !isFinished) {
       endSession();
+      return;
+    }
+    
+    // Play sound on typing
+    if (isActive && !isFinished && e.key.length === 1) {
+      if (e.key === ' ') audioManager.play('space');
+      else audioManager.play('default');
     }
   };
 
@@ -155,6 +203,16 @@ export default function TypingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
+      {/* Audio Unlock Button */}
+      {!audioUnlocked && (
+        <button 
+          onClick={unlockAudio}
+          className="fixed bottom-4 right-4 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-purple-700 transition-colors z-50"
+        >
+          🔊 Enable ASMR Sounds
+        </button>
+      )}
+
       {/* Background Starfield */}
       <div className="fixed inset-0 opacity-20 pointer-events-none">
         <StarField star={generatedStar || { 
