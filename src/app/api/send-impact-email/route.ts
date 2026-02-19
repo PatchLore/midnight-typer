@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => {
+  if (!process.env.RESEND_API_KEY) throw new Error('Missing RESEND_API_KEY');
+  return new Resend(process.env.RESEND_API_KEY);
+};
 
 export async function POST(request: Request) {
   try {
     const { to, data } = await request.json();
+    
+    const resend = getResend();
     
     await resend.emails.send({
       from: 'Cosmos Cartography <stars@cosmoscartography.com>',

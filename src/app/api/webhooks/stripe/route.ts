@@ -4,7 +4,10 @@ import { treePlantingService } from '@/lib/tree-planting';
 import { incrementStarsClaimed, incrementTreesPlanted, updateStarStatus, getImpactCounter } from '@/lib/supabase';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const getResend = () => {
+  if (!process.env.RESEND_API_KEY) throw new Error('Missing RESEND_API_KEY');
+  return new Resend(process.env.RESEND_API_KEY);
+};
 
 export async function POST(request: Request) {
   const sig = request.headers.get('stripe-signature');

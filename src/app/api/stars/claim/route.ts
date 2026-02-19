@@ -4,11 +4,24 @@ import { stripe } from '@/lib/stripe';
 import { getAvailableSlots, saveStar, getUserStars } from '@/lib/supabase';
 import { monitoring } from '@/lib/monitoring';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const stripePriceId = process.env.STRIPE_PRICE_ID!;
+const getSupabase = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables');
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const getStripePriceId = () => {
+  const stripePriceId = process.env.STRIPE_PRICE_ID;
+  if (!stripePriceId) {
+    throw new Error('Missing STRIPE_PRICE_ID');
+  }
+  return stripePriceId;
+};
 
 // Rate limiting
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -74,7 +87,7 @@ export async function POST(request: Request) {
     }
 
     // Check if star exists and is unclaimed
-    const { data: star, error: starError } = await supabase
+    const { data: star, error: starError } = await getSupabase()
       .from('stars')
       .select('*')
       .eq('id', starId)
@@ -109,7 +122,7 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
-        price: stripePriceId,
+        price: getStripePriceId(),
         quantity: 1,
       }],
       mode: 'payment',
